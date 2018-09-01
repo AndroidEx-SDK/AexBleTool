@@ -27,6 +27,7 @@ import com.androidex.fastble.exception.BleException;
 import com.androidex.fastble.utils.Byte2HexUtil;
 import com.androidex.fastble.utils.HexUtil;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -258,7 +259,7 @@ public class CharacteristicOperationFragment extends Fragment {
                                                 runOnUiThread(new Runnable() {
                                                     @Override
                                                     public void run() {
-                                                        addText(txt, HexUtil.formatHexString(characteristic.getValue(), true));
+                                                        addText(txt,dbgToString(characteristic.getValue()));
                                                     }
                                                 });
                                             }
@@ -337,6 +338,22 @@ public class CharacteristicOperationFragment extends Fragment {
 
             layout_container.addView(view);
         }
+    }
+
+    public String dbgToString(byte[] data){
+        StringBuilder sMsg = new StringBuilder();
+        if (data.length > 3 && data[0] == 0x00 && data[1] == 0x01) {
+            try {
+                sMsg.append(String.format("[%d:%d]",data.length,data[2]));
+                sMsg.append(new String(data, "UTF-8"),3,data.length);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+        }else{
+            sMsg.append(HexUtil.formatHexString(data, true));
+        }
+
+        return sMsg.toString();
     }
 
     private void runOnUiThread(Runnable runnable) {
